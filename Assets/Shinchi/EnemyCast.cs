@@ -5,7 +5,7 @@ using static UnityEngine.UI.Image;
 
 public class EnemyCast : MonoBehaviour
 {
-    State _state = State.stop; // ステート
+    states _state = states.stop; // ステート
 
     [SerializeField] float _speed;
     [SerializeField] float _maxDistance;
@@ -25,7 +25,7 @@ public class EnemyCast : MonoBehaviour
     void Update()
     {
         // インゲーム外
-        if (_state == State.stop)
+        if (_state == states.stop)
         {
 
         }
