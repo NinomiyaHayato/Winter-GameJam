@@ -14,8 +14,8 @@ public class EnemyCast : MonoBehaviour
     [Tooltip("Player認識範囲")] float _maxDistance;
     [SerializeField]
     [Tooltip("StoppingDistance範囲")] float _StoppingDistance;
-    //[SerializeField]
-    //[Tooltip("視野角"), Range(0, 180)] float _fov;
+    [SerializeField]
+    [Tooltip("視野角"), Range(0, 180)] float _fov;
     [SerializeField]
     [Tooltip("スタートポジション")] Transform _startPos;
     [SerializeField]
@@ -23,9 +23,12 @@ public class EnemyCast : MonoBehaviour
     [SerializeField]
     [Tooltip("WayPointsの数と位置")] Transform[] _wayPoints;
 
+    [Tooltip("視点方向を示すオブジェクト")]
+    [SerializeField] Transform _lookAtTarget;
+
     int _currentWayPointIndex; // 現在のWayPointの数
     NavMeshAgent _agent; // NavMeshAgent
-    // bool _isVisible = true;
+    bool _isVisible = true;
 
     void Awake()
     {
@@ -52,12 +55,12 @@ public class EnemyCast : MonoBehaviour
         // インゲーム外
         if (_state == states.stop)
         {
-            Debug.Log("1");
+            //Debug.Log("1");
         }
         // インゲーム
         else
         {
-            Debug.Log("2");
+            // Debug.Log("2");
             Raycast();
         }
     }
@@ -70,25 +73,34 @@ public class EnemyCast : MonoBehaviour
         // 当たったobjの中でPlayerを探す。見つけたら追いかける。それ以外は徘徊。
         for (int i = 0; i < hitColliders.Length; i++)
         {
-            Debug.Log(hitColliders[i].gameObject.name);
+            //Debug.Log(hitColliders[i].gameObject.name);
             if (hitColliders[i].gameObject.tag == "Player")
             {
                 _hitPlayer = true;
             }
         }
-        if (!_hitPlayer)
-        {
-            Patrol();
-        }
-        else
+        if (_hitPlayer && FOV())
         {
             NavMove();
         }
+        else
+        {
+            Patrol();
+        }
+    }
+
+    bool FOV()
+    {
+        Vector3 look = _lookAtTarget.position - this.transform.position;
+        Vector3 target = this._targetTransformPos.position - this.transform.position;
+        float cosHalfSight = Mathf.Cos(_fov / 2 * Mathf.Deg2Rad);
+        float cosTarget = Vector3.Dot(look, target) / (look.magnitude * target.magnitude);
+        return cosTarget > cosHalfSight && target.magnitude < _fov;
     }
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.yellow;
+        Gizmos.color =  Color.yellow;
         Gizmos.DrawSphere(transform.position, _maxDistance);
     }
 
@@ -104,7 +116,7 @@ public class EnemyCast : MonoBehaviour
         // インスペクターから巡回する目的地の数を調整できる
         if (_agent.remainingDistance <= _agent.stoppingDistance)
         {
-            Debug.Log(_currentWayPointIndex);
+            //Debug.Log(_currentWayPointIndex);
             // 目的地の番号を１に更新
             _currentWayPointIndex = (_currentWayPointIndex + 1) % _wayPoints.Length;
             // 目的地を次の場所に設定
