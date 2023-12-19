@@ -47,9 +47,9 @@ public class PlantManager : MonoBehaviour
     #region 進捗度のクラス。一定範囲の値をとるfloat型
     class Progress
     {
-        public readonly float Max = 100.0f;
+        public const float Max = 100.0f;
 
-        float _value;
+        float _value = new();
         public float Value
         {
             get => _value;
@@ -85,12 +85,15 @@ public class PlantManager : MonoBehaviour
     [Header(Const.PreColorTag + "自然減少量" + Const.SufColorTag)]
     [SerializeField] float _deltaProgress = 1.0f;
 
+    Progress _progress = new();
+
+    public float CurrentProgress => _progress.Value;
+
     void Awake()
     {
         // StepProgressメソッドが呼ばれるたびに進捗が増加する
-        Progress progress = new();
         MessageBroker.Default.Receive<Message>()
-            .Subscribe(_ => progress.Value += _progressPower).AddTo(this);
+            .Subscribe(_ => _progress.Value += _progressPower).AddTo(this);
 
         PlantObject[] plants = _plants.Select(t => new PlantObject(t)).ToArray();     
 
@@ -106,7 +109,7 @@ public class PlantManager : MonoBehaviour
 
         HideAll();
         // 進捗度に応じたスケールを毎フレーム表示するだけなので、インゲームを跨いで処理し続けても大丈夫
-        UpdateAsync(progress, plants, this.GetCancellationTokenOnDestroy()).Forget();
+        UpdateAsync(_progress, plants, this.GetCancellationTokenOnDestroy()).Forget();
 
         // 進捗をリセットして植物のオブジェクトを全部隠す
         void HideAll()
@@ -114,7 +117,7 @@ public class PlantManager : MonoBehaviour
             // UIを初期化
             if (_uiController != null) _uiController.ErosionTextChange(0);
 
-            progress.Value = 0;
+            _progress.Value = 0;
             foreach (PlantObject p in plants) p.Hide();
         }
     }
@@ -149,7 +152,7 @@ public class PlantManager : MonoBehaviour
     // UIに0から100%で表示
     void Print(float percent)
     {
-        _uiController.ErosionTextChange((int)(percent * 100));
+        _uiController.ErosionTextChange(Mathf.CeilToInt(percent * 100));
     }
 
     /// <summary>
