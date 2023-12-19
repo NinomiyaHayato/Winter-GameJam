@@ -5,8 +5,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Rigidbody))]
 public class EnemyCast : MonoBehaviour
 {
-    states _state = states.stop; // ステート
-
+    //states _state = states.stop; // ステート
+    [SerializeField] states _state = states.stop;
     [SerializeField] float _speed;
     [SerializeField] float _maxDistance;
     [SerializeField] Transform _startPos;
@@ -30,6 +30,7 @@ public class EnemyCast : MonoBehaviour
     void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
+        _agent.speed = _speed;
         _agent.SetDestination(_wayPoints[0].position);
         TitleEnemy();
     }
@@ -40,32 +41,15 @@ public class EnemyCast : MonoBehaviour
         // インゲーム外
         if (_state == states.stop)
         {
-
+            Debug.Log("1");
         }
         // インゲーム
         else
         {
+            Debug.Log("2");
             Raycast();
         }
     }
-
-    void NavMove()
-    {
-       //if(Vector3.Distance()
-    }
-
-    void Patrol()
-    {
-        // インスペクターから巡回する目的地の数を調整できる
-        if (_agent.remainingDistance <= _agent.stoppingDistance)
-        {
-            // 目的地の番号を１に更新
-            _currentWayPointIndex = (_currentWayPointIndex + 1) % _wayPoints.Length;
-            // 目的地を次の場所に設定
-            _agent.SetDestination(_wayPoints[_currentWayPointIndex].position);
-        }
-    }
-
 
     void Raycast()
     {
@@ -87,6 +71,24 @@ public class EnemyCast : MonoBehaviour
         else
         {
             NavMove();
+        }
+    }
+
+        void NavMove()
+    {
+        _agent.destination = _targetTransformPos.transform.position;
+    }
+
+    void Patrol()
+    {
+        // インスペクターから巡回する目的地の数を調整できる
+        if (_agent.remainingDistance <= _agent.stoppingDistance)
+        {
+            Debug.Log(_currentWayPointIndex);
+            // 目的地の番号を１に更新
+            _currentWayPointIndex = (_currentWayPointIndex + 1) % _wayPoints.Length;
+            // 目的地を次の場所に設定
+            _agent.SetDestination(_wayPoints[_currentWayPointIndex].position);
         }
     }
 
