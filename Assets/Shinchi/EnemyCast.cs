@@ -9,19 +9,29 @@ public class EnemyCast : MonoBehaviour
 
     [SerializeField] float _speed;
     [SerializeField] float _maxDistance;
-    [SerializeField] GameObject _startPos;
-    [SerializeField] Transform _targetTransform;
+    [SerializeField] Transform _startPos;
+    [SerializeField] Transform _targetTransformPos;
     [SerializeField] LayerMask _layerMask;
     [SerializeField] Transform[] _wayPoints;
 
     int _currentWayPointIndex;
     NavMeshAgent _agent;
-    RaycastHit hit;
+
+    void Awake()
+    {
+        EntryPoint.OnInGameStart += ResetEnemy;
+    }
+
+    void OnDestroy()
+    {
+        EntryPoint.OnInGameStart -= ResetEnemy;
+    }
 
     void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
         _agent.SetDestination(_wayPoints[0].position);
+        TitleEnemy();
     }
 
 
@@ -41,7 +51,7 @@ public class EnemyCast : MonoBehaviour
 
     void NavMove()
     {
-
+       //if(Vector3.Distance()
     }
 
     void Patrol()
@@ -80,9 +90,15 @@ public class EnemyCast : MonoBehaviour
         }
     }
 
+    void TitleEnemy()
+    {
+        _state = states.stop;
+    }
+
     void ResetEnemy()
     {
-
+        this.transform.position = _startPos.transform.position;
+        _state = states.move;
     }
 }
 
