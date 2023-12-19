@@ -15,6 +15,17 @@ public class PlayerTest : MonoBehaviour
     float _horizontal;
     float _vertical;
     // Start is called before the first frame update
+
+    private void Awake()
+    {
+        EntryPoint.OnInGameStart += ResetsPlayer;
+    }
+
+    private void OnDestroy()
+    {
+        EntryPoint.OnInGameStart -= ResetsPlayer;
+    }
+
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
