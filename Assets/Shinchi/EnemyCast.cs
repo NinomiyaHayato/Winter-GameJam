@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,6 +14,8 @@ public class EnemyCast : MonoBehaviour
     [Tooltip("Player認識範囲")] float _maxDistance;
     [SerializeField]
     [Tooltip("StoppingDistance範囲")] float _StoppingDistance;
+    //[SerializeField]
+    //[Tooltip("視野角"), Range(0, 180)] float _fov;
     [SerializeField]
     [Tooltip("スタートポジション")] Transform _startPos;
     [SerializeField]
@@ -22,6 +25,7 @@ public class EnemyCast : MonoBehaviour
 
     int _currentWayPointIndex; // 現在のWayPointの数
     NavMeshAgent _agent; // NavMeshAgent
+    // bool _isVisible = true;
 
     void Awake()
     {
@@ -37,7 +41,7 @@ public class EnemyCast : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _agent.speed = _speed; // NavMeshAgentのスピードを変数に
-        _agent.stoppingDistance =_StoppingDistance; // NavMeshAgentのStoppingDistanceを変数に
+        _agent.stoppingDistance = _StoppingDistance; // NavMeshAgentのStoppingDistanceを変数に
         _agent.SetDestination(_wayPoints[0].position); // 最初に向かうWayPoint
         TitleEnemy();
     }
@@ -80,6 +84,12 @@ public class EnemyCast : MonoBehaviour
         {
             NavMove();
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawSphere(transform.position, _maxDistance);
     }
 
     void NavMove()
