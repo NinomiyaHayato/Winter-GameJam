@@ -24,12 +24,12 @@ public class Worldkeeper : MonoBehaviour
     /// <summary>
     /// 夢の世界に遷移した際に呼ばれるコールバック
     /// </summary>
-    public static UnityAction OnDreamEnter;
+    public static event UnityAction OnDreamEnter;
     /// <summary>
     /// 現実世界に遷移した際に呼ばれるコールバック
     /// インゲーム開始時、現実世界から始まる際は呼ばれない。
     /// </summary>
-    public static UnityAction OnRealityEnter;
+    public static event UnityAction OnRealityEnter;
 
     [Header(Const.PreColorTag + "夢の世界の持続時間(秒)" + Const.SufColorTag)]
     [SerializeField] float _duration = 5.0f;
@@ -42,8 +42,6 @@ public class Worldkeeper : MonoBehaviour
 
     void Awake()
     {
-        ToReality();
-
         // 通常のオブジェクト破棄時に加えて、インゲームのリセット時にキャンセルされる
         CancellationTokenSource cts = new();
         EntryPoint.OnPreInGameStart += OnStart;
@@ -84,16 +82,16 @@ public class Worldkeeper : MonoBehaviour
 
     void ToDream()
     {
-        AudioPlayer.PlayBGM(AudioKey.BGM_Dream);
         _currentState = State.Dream;
         _volume.enabled = true;
+        OnDreamEnter?.Invoke();
     }
 
     void ToReality()
     {
-        AudioPlayer.PlayBGM(AudioKey.BGM_Reality);
         _currentState = State.Reality;
         _volume.enabled = false;
+        OnRealityEnter?.Invoke();
     }
 
     // 時間が流れている間、夢の世界の経過時間を進める

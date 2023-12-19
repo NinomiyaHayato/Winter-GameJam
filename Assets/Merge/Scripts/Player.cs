@@ -39,7 +39,7 @@ public class Player : MonoBehaviour
     {
         Cursor.visible = false;
 
-        bool isValid = true;
+        bool isValid = false;
         this.UpdateAsObservable().Where(_ => isValid).Subscribe(_ => _isMoving.Value = Move());
 
         // アイテムを獲得する
@@ -60,6 +60,8 @@ public class Player : MonoBehaviour
             EntryPoint.OnTitleEnter -= Initialize;
             EntryPoint.OnInGameReset -= Initialize;
         });
+
+        // 無効化から
     }
 
     // ゲーム開始前に初期化する
@@ -100,7 +102,6 @@ public class Player : MonoBehaviour
     // アイテムを獲得した
     void OnGetItem(GameObject item)
     {
-        Destroy(item);
         PlantManager.StepProgress();
     }
 
