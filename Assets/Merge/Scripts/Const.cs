@@ -9,5 +9,6 @@ public static class Const
     public const string SufColorTag = "</color>";
 
     public const string PlayerTag = "Player";
+    public const string ItemTag = "Item";
     public static readonly int PlayerLayer = 1 << LayerMask.NameToLayer("Player");
 }
