@@ -11,11 +11,13 @@ public class EnemyCast : MonoBehaviour
     [Tooltip("移動速度")] float _speed;
     [SerializeField]
     [Tooltip("Player認識範囲")] float _maxDistance;
-    [SerializeField] 
+    [SerializeField]
+    [Tooltip("StoppingDistance範囲")] float _StoppingDistance;
+    [SerializeField]
     [Tooltip("スタートポジション")] Transform _startPos;
-    [SerializeField] 
+    [SerializeField]
     [Tooltip("Playerの位置")] Transform _targetTransformPos;
-    [SerializeField] 
+    [SerializeField]
     [Tooltip("WayPointsの数と位置")] Transform[] _wayPoints;
 
     int _currentWayPointIndex; // 現在のWayPointの数
@@ -35,6 +37,7 @@ public class EnemyCast : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
         _agent.speed = _speed; // NavMeshAgentのスピードを変数に
+        _agent.stoppingDistance =_StoppingDistance; // NavMeshAgentのStoppingDistanceを変数に
         _agent.SetDestination(_wayPoints[0].position); // 最初に向かうWayPoint
         TitleEnemy();
     }
