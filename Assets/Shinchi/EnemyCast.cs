@@ -5,17 +5,21 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Rigidbody))]
 public class EnemyCast : MonoBehaviour
 {
-    //states _state = states.stop; // ステート
-    [SerializeField] states _state = states.stop;
-    [SerializeField] float _speed;
-    [SerializeField] float _maxDistance;
-    [SerializeField] Transform _startPos;
-    [SerializeField] Transform _targetTransformPos;
-    [SerializeField] LayerMask _layerMask;
-    [SerializeField] Transform[] _wayPoints;
+    [SerializeField]
+    [Tooltip("Stateの種類")] states _state = states.stop;
+    [SerializeField]
+    [Tooltip("移動速度")] float _speed;
+    [SerializeField]
+    [Tooltip("Player認識範囲")] float _maxDistance;
+    [SerializeField] 
+    [Tooltip("スタートポジション")] Transform _startPos;
+    [SerializeField] 
+    [Tooltip("Playerの位置")] Transform _targetTransformPos;
+    [SerializeField] 
+    [Tooltip("WayPointsの数と位置")] Transform[] _wayPoints;
 
-    int _currentWayPointIndex;
-    NavMeshAgent _agent;
+    int _currentWayPointIndex; // 現在のWayPointの数
+    NavMeshAgent _agent; // NavMeshAgent
 
     void Awake()
     {
@@ -30,8 +34,8 @@ public class EnemyCast : MonoBehaviour
     void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
-        _agent.speed = _speed;
-        _agent.SetDestination(_wayPoints[0].position);
+        _agent.speed = _speed; // NavMeshAgentのスピードを変数に
+        _agent.SetDestination(_wayPoints[0].position); // 最初に向かうWayPoint
         TitleEnemy();
     }
 
@@ -54,8 +58,9 @@ public class EnemyCast : MonoBehaviour
     void Raycast()
     {
         bool _hitPlayer = false;
-
+        // RayCastをEnemy中心に円形に展開
         Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, _maxDistance);
+        // 当たったobjの中でPlayerを探す。見つけたら追いかける。それ以外は徘徊。
         for (int i = 0; i < hitColliders.Length; i++)
         {
             Debug.Log(hitColliders[i].gameObject.name);
@@ -74,13 +79,15 @@ public class EnemyCast : MonoBehaviour
         }
     }
 
-        void NavMove()
+    void NavMove()
     {
+        //　Playerを追いかける仕組み
         _agent.destination = _targetTransformPos.transform.position;
     }
 
     void Patrol()
     {
+        // 徘徊
         // インスペクターから巡回する目的地の数を調整できる
         if (_agent.remainingDistance <= _agent.stoppingDistance)
         {
