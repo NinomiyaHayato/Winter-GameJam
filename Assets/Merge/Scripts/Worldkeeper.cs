@@ -20,8 +20,6 @@ public class Worldkeeper : MonoBehaviour
         Dream,
     }
 
-    [Header("時間停止に対応する")]
-    [SerializeField] Player _player;
     [Header(Const.PreColorTag + "夢の世界の持続時間(秒)" + Const.SufColorTag)]
     [SerializeField] float _duration = 5.0f;
     [Header("夢の世界用のポストエフェクト")]
@@ -75,12 +73,14 @@ public class Worldkeeper : MonoBehaviour
 
     void ToDream()
     {
+        AudioPlayer.PlayBGM(AudioKey.BGM_Dream);
         _currentState = State.Dream;
         _volume.enabled = true;
     }
 
     void ToReality()
     {
+        AudioPlayer.PlayBGM(AudioKey.BGM_Reality);
         _currentState = State.Reality;
         _volume.enabled = false;
     }

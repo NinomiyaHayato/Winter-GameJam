@@ -76,8 +76,8 @@ public class PlantManager : MonoBehaviour
 
     public struct Message { }
 
-    [Header("進捗を数値で表示するUI")]
-    [SerializeField] Text _progressText;
+    [Header("UIを操作する")]
+    [SerializeField] DoDirection _uiController;
     [Header("ヒエラルキー上に配置した植物")]
     [SerializeField] Transform[] _plants;
     [Header(Const.PreColorTag + "1回の進捗で増加する量" + Const.SufColorTag)]
@@ -111,7 +111,9 @@ public class PlantManager : MonoBehaviour
         // 進捗をリセットして植物のオブジェクトを全部隠す
         void HideAll()
         {
-            if (_progressText != null) _progressText.text = string.Empty;
+            // UIを初期化
+            if (_uiController != null) _uiController.ErosionTextChange(0);
+
             progress.Value = 0;
             foreach (PlantObject p in plants) p.Hide();
         }
@@ -147,8 +149,7 @@ public class PlantManager : MonoBehaviour
     // UIに0から100%で表示
     void Print(float percent)
     {
-        if (_progressText == null) return;
-        _progressText.text = $"{percent * 100}%";
+        _uiController.ErosionTextChange((int)(percent * 100));
     }
 
     /// <summary>

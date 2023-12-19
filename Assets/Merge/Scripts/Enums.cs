@@ -25,5 +25,7 @@ public enum CameraType
 /// </summary>
 public enum AudioKey
 {
-    Dummy,
+    BGM_Reality,
+    BGM_Dream,
+    BGM_Ending,
 }

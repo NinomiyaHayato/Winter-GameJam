@@ -31,8 +31,8 @@ public class EntryPoint : MonoBehaviour
     [SerializeField] GameRule _gameRule;
     [Header("ゲームの状態に応じてカメラを切り替える")]
     [SerializeField] CameraBlender _cameraBlender;
-    [Header("タイトル画面のUI")]
-    [SerializeField] CanvasGroup _titleUiRoot;
+    [Header("UIを操作する")]
+    [SerializeField] DoDirection _uiController;
     [Header("フェードの設定")]
     [SerializeField] Image _fadeImage;
     [Tooltip("短くしすぎるとカメラの切り替えに間に合わないので注意")]
@@ -90,7 +90,7 @@ public class EntryPoint : MonoBehaviour
     // タイトルに入る前、ゲーム起動時の状態に全てリセットする
     void ResetGameAll()
     {
-        _titleUiRoot.alpha = 1;
+        _uiController.Action(Scenes.TitleScene);
     }
 
     // 画面クリックを待つ
@@ -102,7 +102,7 @@ public class EntryPoint : MonoBehaviour
     // 「タイトル」から「インゲーム」に遷移する際の演出
     async UniTask ToInGameEffectAsync(CancellationToken token)
     {
-        _titleUiRoot.alpha = 0;
+        _uiController.Action(Scenes.GameScene);
         await UniTask.Yield(token);
     }
 
