@@ -1,8 +1,8 @@
-using System.Drawing;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEngine.UI.Image;
 
+[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(Rigidbody))]
 public class EnemyCast : MonoBehaviour
 {
     states _state = states.stop; // ステート
@@ -12,13 +12,16 @@ public class EnemyCast : MonoBehaviour
     [SerializeField] GameObject _startPos;
     [SerializeField] Transform _targetTransform;
     [SerializeField] LayerMask _layerMask;
+    [SerializeField] Transform[] _wayPoints;
 
+    int _currentWayPointIndex;
     NavMeshAgent _agent;
     RaycastHit hit;
 
     void Start()
     {
-
+        _agent = GetComponent<NavMeshAgent>();
+        _agent.SetDestination(_wayPoints[0].position);
     }
 
 
@@ -43,7 +46,14 @@ public class EnemyCast : MonoBehaviour
 
     void Patrol()
     {
-
+        // インスペクターから巡回する目的地の数を調整できる
+        if (_agent.remainingDistance <= _agent.stoppingDistance)
+        {
+            // 目的地の番号を１に更新
+            _currentWayPointIndex = (_currentWayPointIndex + 1) % _wayPoints.Length;
+            // 目的地を次の場所に設定
+            _agent.SetDestination(_wayPoints[_currentWayPointIndex].position);
+        }
     }
 
 
