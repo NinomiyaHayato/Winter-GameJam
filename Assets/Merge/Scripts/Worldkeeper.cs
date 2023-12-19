@@ -7,6 +7,7 @@ using UniRx.Triggers;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using System.Linq;
+using UnityEngine.Events;
 
 // 夢の世界の状態でインゲームが終了したら現実世界にリセットされる
 // 判定に触れた際に夢の世界に入る
@@ -19,6 +20,16 @@ public class Worldkeeper : MonoBehaviour
         Reality,
         Dream,
     }
+
+    /// <summary>
+    /// 夢の世界に遷移した際に呼ばれるコールバック
+    /// </summary>
+    public static UnityAction OnDreamEnter;
+    /// <summary>
+    /// 現実世界に遷移した際に呼ばれるコールバック
+    /// インゲーム開始時、現実世界から始まる際は呼ばれない。
+    /// </summary>
+    public static UnityAction OnRealityEnter;
 
     [Header(Const.PreColorTag + "夢の世界の持続時間(秒)" + Const.SufColorTag)]
     [SerializeField] float _duration = 5.0f;
