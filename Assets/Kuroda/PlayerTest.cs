@@ -88,6 +88,7 @@ public class PlayerTest : MonoBehaviour
         {
             Destroy(other.gameObject);
             Debug.Log("ƒAƒCƒeƒ€‚ÌŽæ“¾");
+            PlantManager.StepProgress();
         }
     }
 }
