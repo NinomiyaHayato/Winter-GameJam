@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UniRx;
-using UniRx.Triggers;
+using Cysharp.Threading.Tasks.Triggers;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine.UI;
@@ -56,6 +55,8 @@ public class EntryPoint : MonoBehaviour
 
     async UniTask GameLoopAsync(CancellationToken token)
     {
+        await this.GetAsyncStartTrigger().StartAsync();
+
         // 「タイトル」と「インゲーム」を繰り返す。
         while (!token.IsCancellationRequested)
         {
@@ -78,12 +79,24 @@ public class EntryPoint : MonoBehaviour
                 // インゲームの結果を待つ
                 PlayResult playResult = await _gameRule.WaitForPlayResultAsync();
 
-                // インゲームをリセット
-                await ResetInGameAsync(token);
-
-                // ゲームクリアでループを抜けてタイトル画面に戻る
-                if (playResult == PlayResult.Clear) break;
+                if (playResult == PlayResult.Miss)
+                {
+                    // タイトルカメラに切り替えることで、開始時にタイトルから遷移した際の演出と同じになる
+                    await InGameResetAsync(CameraType.Title, token);
+                }            
+                else if (playResult == PlayResult.Clear)
+                {
+                    // ゲームクリアでループを抜けてエンディングへ
+                    await InGameResetAsync(CameraType.Ending, token);
+                    break;
+                }
             }
+
+            // エンディング画面でクリックまで待つ
+            await WaitForInputAsync(token);
+
+            // タイトル画面に遷移
+            await InGameResetAsync(CameraType.Title, token);
         }
     }
 
@@ -106,11 +119,11 @@ public class EntryPoint : MonoBehaviour
         await UniTask.Yield(token);
     }
 
-    // ミスもしくはクリアした際にフェードしてゲームをリセットする
-    async UniTask ResetInGameAsync(CancellationToken token)
+    // フェードしてシーンを遷移。ゲームをリセットする。
+    async UniTask InGameResetAsync(CameraType nextCamera, CancellationToken token)
     {
         await _fadeImage.FadeOutAsync(_fadeDuration / 2, token);
-        await _cameraBlender.SwitchAsync(CameraType.Title, token);
+        await _cameraBlender.SwitchAsync(nextCamera, token);
         OnInGameReset?.Invoke();
         await _fadeImage.FadeInAsync(_fadeDuration / 2, token);
     }

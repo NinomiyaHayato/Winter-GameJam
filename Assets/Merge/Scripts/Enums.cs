@@ -18,6 +18,7 @@ public enum CameraType
 {
     Title,
     InGame,
+    Ending,
 }
 
 /// <summary>

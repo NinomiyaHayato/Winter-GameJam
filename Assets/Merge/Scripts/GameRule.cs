@@ -14,6 +14,8 @@ using UnityEngine.Events;
 /// </summary>
 public class GameRule : MonoBehaviour
 {
+    [Header("プレイヤーがミスしたかどうか")]
+    [SerializeField] Player _player;
     [Header("植物の進捗率")]
     [SerializeField] PlantManager _plantManager;
 
@@ -23,18 +25,14 @@ public class GameRule : MonoBehaviour
 
     void Awake()
     {
-        EntryPoint.OnInGameReset += () => { _isMiss = false; _isClear = false; };
-        EntryPoint.OnInGameReset -= () => { _isMiss = false; _isClear = false; };
+        EntryPoint.OnInGameReset += FlagReset;
+        this.OnDestroyAsObservable().Subscribe(_ => EntryPoint.OnInGameReset -= FlagReset);
 
-        Player.OnMissed += () => _isMiss = true;
-        this.OnDestroyAsObservable().Subscribe(_ => 
-        {
-            Player.OnMissed -= () => _isMiss = true;
-        });
+        _player.OnMissed += () => _isMiss = true;
+        _plantManager.OnProgressComplete += () => _isClear = true;
 
-        _plantManager.ObserveEveryValueChanged(v => v.CurrentProgress)
-            .Where(f => Mathf.CeilToInt(f) >= 100)
-            .Subscribe(v => _isClear = true).AddTo(this);
+        // コールバック登録/解除用
+        void FlagReset() { _isMiss = false; _isClear = false; }
     }
 
     /// <summary>
