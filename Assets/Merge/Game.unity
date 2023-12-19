@@ -1512,7 +1512,7 @@ MonoBehaviour:
   - m_Script
   m_LockStageInInspector: 
   m_StreamingVersion: 20170927
-  m_Priority: 11
+  m_Priority: 10
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
@@ -5608,6 +5608,7 @@ GameObject:
   - component: {fileID: 7343104667323341393}
   - component: {fileID: 9053591512227459612}
   - component: {fileID: 6382384379532795960}
+  - component: {fileID: 9053591512227459613}
   m_Layer: 0
   m_Name: Module
   m_TagString: Untagged
@@ -5665,11 +5666,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameRule: {fileID: 8919952534621948675}
   _cameraBlender:
-    _titleVCam: {fileID: 8975279437950532830}
-    _inGameVCam: {fileID: 8989076064998119172}
     _cinemachineBrain: {fileID: 330585548}
-    _toTitleBlend: 0.1
-    _toInGameBlend: 1
+    _title:
+      <Camera>k__BackingField: {fileID: 8975279437950532830}
+      <Blend>k__BackingField: 0.1
+    _inGame:
+      <Camera>k__BackingField: {fileID: 8989076064998119172}
+      <Blend>k__BackingField: 1
+    _ending:
+      <Camera>k__BackingField: {fileID: 462216616}
+      <Blend>k__BackingField: 0.1
+    _default: {fileID: 8975279437950532830}
   _uiController: {fileID: 405676248}
   _fadeImage: {fileID: 2692088802741781800}
   _fadeDuration: 1
@@ -6407,8 +6414,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6f389b6445dc5340b6df85bc077cce0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _plantManager: {fileID: 6382384379532795960}
   _player: {fileID: 1571885693}
+  _plantManager: {fileID: 6382384379532795960}
 --- !u!114 &8975279437950532830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6543,6 +6550,20 @@ MonoBehaviour:
   - {fileID: 5571976105328410142}
   - {fileID: 1907032745}
   - {fileID: 1612786366}
+--- !u!114 &9053591512227459613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2751097656069883264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a34f04cc641642419fb07c18ebe414e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _itemData: []
+  _spawnPoints: []
 --- !u!1 &9191804700909789672
 GameObject:
   m_ObjectHideFlags: 0

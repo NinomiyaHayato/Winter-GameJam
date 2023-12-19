@@ -16,7 +16,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// プレイヤーがインゲームのミス条件を満たした際に呼ばれるコールバック
     /// </summary>
-    public static UnityAction OnMissed;
+    public event UnityAction OnMissed;
 
     [SerializeField] CharacterController _controller;
     [Header("アイテムや敵と衝突する判定")]

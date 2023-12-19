@@ -6,7 +6,7 @@ using UniRx.Triggers;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
 using System.Threading;
-using UnityEngine.UI;
+using UnityEngine.Events;
 using System.Linq;
 
 public class PlantManager : MonoBehaviour
@@ -76,6 +76,11 @@ public class PlantManager : MonoBehaviour
 
     public struct Message { }
 
+    /// <summary>
+    /// 進捗度が最大になったタイミングで呼ばれるコールバック
+    /// </summary>
+    public event UnityAction OnProgressComplete;
+
     [Header("UIを操作する")]
     [SerializeField] DoDirection _uiController;
     [Header("ヒエラルキー上に配置した植物")]
@@ -85,17 +90,19 @@ public class PlantManager : MonoBehaviour
     [Header(Const.PreColorTag + "自然減少量" + Const.SufColorTag)]
     [SerializeField] float _deltaProgress = 1.0f;
 
-    Progress _progress = new();
-
-    public float CurrentProgress => _progress.Value;
-
     void Awake()
     {
-        // StepProgressメソッドが呼ばれるたびに進捗が増加する
-        MessageBroker.Default.Receive<Message>()
-            .Subscribe(_ => _progress.Value += _progressPower).AddTo(this);
+        Progress progress = new();
+        PlantObject[] plants = _plants.Select(t => new PlantObject(t)).ToArray();
 
-        PlantObject[] plants = _plants.Select(t => new PlantObject(t)).ToArray();     
+        // StepProgressメソッドが呼ばれるたびに進捗が増加する
+        MessageBroker.Default.Receive<Message>().Subscribe(_ => 
+        {
+            // 進捗度が最大になった場合にコールバック
+            if (progress.Value + _progressPower >= Progress.Max) OnProgressComplete?.Invoke();
+            
+            progress.Value += _progressPower;
+        }).AddTo(this);    
 
         // インゲーム開始とリセットのタイミングでオブジェクトを全部画面から隠す
         EntryPoint.OnPreInGameStart += HideAll;
@@ -109,7 +116,7 @@ public class PlantManager : MonoBehaviour
 
         HideAll();
         // 進捗度に応じたスケールを毎フレーム表示するだけなので、インゲームを跨いで処理し続けても大丈夫
-        UpdateAsync(_progress, plants, this.GetCancellationTokenOnDestroy()).Forget();
+        UpdateAsync(progress, plants, this.GetCancellationTokenOnDestroy()).Forget();
 
         // 進捗をリセットして植物のオブジェクトを全部隠す
         void HideAll()
@@ -117,7 +124,7 @@ public class PlantManager : MonoBehaviour
             // UIを初期化
             if (_uiController != null) _uiController.ErosionTextChange(0);
 
-            _progress.Value = 0;
+            progress.Value = 0;
             foreach (PlantObject p in plants) p.Hide();
         }
     }
