@@ -15,6 +15,17 @@ public class PlayerTest : MonoBehaviour
     float _horizontal;
     float _vertical;
     // Start is called before the first frame update
+
+    private void Awake()
+    {
+        EntryPoint.OnInGameStart += ResetsPlayer;
+    }
+
+    private void OnDestroy()
+    {
+        EntryPoint.OnInGameStart -= ResetsPlayer;
+    }
+
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
@@ -22,16 +33,13 @@ public class PlayerTest : MonoBehaviour
         {
             _anim = GetComponent<Animator>();
         }
+        TitlePlayer();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(_state == state.stop)
-        {
-            
-        }//タイトル、リザルト
-        else
+        if(_state == state.move)
         {
             //input
             PlayerInput();
@@ -67,6 +75,20 @@ public class PlayerTest : MonoBehaviour
     {
         this.transform.position = _startPosition.transform.position;
         _state = state.move;
+    }
+
+    void TitlePlayer()
+    {
+        _state = state.stop;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "Item")
+        {
+            Destroy(other.gameObject);
+            Debug.Log("アイテムの取得");
+        }
     }
 }
 enum state
