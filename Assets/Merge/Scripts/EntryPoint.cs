@@ -25,6 +25,10 @@ public class EntryPoint : MonoBehaviour
     /// ミスもしくはクリアでインゲーム終了時、フェードアウトして画面が真っ暗になったタイミングで呼ばれる
     /// </summary>
     public static event UnityAction OnInGameReset;
+    /// <summary>
+    /// エンディングに遷移したタイミングで呼ばれる
+    /// </summary>
+    public static event UnityAction OnEndingEnter;
 
     [Header("ゲームルールの制御")]
     [SerializeField] GameRule _gameRule;
@@ -66,7 +70,7 @@ public class EntryPoint : MonoBehaviour
             // タイトル画面で入力を待つ
             await WaitForInputAsync(token);
             await ToInGameEffectAsync(token);
-
+            
             // インゲームをループする
             while (!token.IsCancellationRequested)
             {
@@ -93,6 +97,7 @@ public class EntryPoint : MonoBehaviour
             }
 
             // エンディング画面でクリックまで待つ
+            OnEndingEnter?.Invoke();
             await WaitForInputAsync(token);
 
             // タイトル画面に遷移
