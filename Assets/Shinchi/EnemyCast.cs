@@ -49,6 +49,7 @@ public class EnemyCast : MonoBehaviour
 
     void Dreaming()
     {
+        // 夢の中に入ったら
         var m = GetComponent<MeshRenderer>();
         var col = GetComponent<Collider>();
         var rb = GetComponent<Rigidbody>();
@@ -63,6 +64,7 @@ public class EnemyCast : MonoBehaviour
 
     void Realty()
     {
+        // 夢から目覚めたら
         var m = GetComponent<MeshRenderer>();
         var col = GetComponent<Collider>();
         var rb = GetComponent<Rigidbody>();
@@ -125,16 +127,19 @@ public class EnemyCast : MonoBehaviour
         }
         if (_hitPlayer && FOV())
         {
+            // Raycastの中にPlayerを認識かつFOVの中にPlayerがいる場合Playerを追いかける
             NavMove();
         }
         else
         {
+            // 上の条件に当てはまらなかったら徘徊(パトロール)
             Patrol();
         }
     }
 
     bool FOV()
     {
+        // EnemyがPlayerを認識する視野角と距離
         Vector3 look = _lookAtTarget.position - this.transform.position;
         Vector3 target = this._targetTransformPos.position - this.transform.position;
         float cosHalfSight = Mathf.Cos(_fov / 2 * Mathf.Deg2Rad);
@@ -144,6 +149,8 @@ public class EnemyCast : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        // Gizmosの色(アルファ値)の変更
+        // Gizmosの球の大きさ表示
         Gizmos.color = new Color(1f, 1f, 0f, 0.5f);
         Gizmos.DrawSphere(transform.position, _maxDistance);
     }
@@ -170,6 +177,7 @@ public class EnemyCast : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        // Playerに当たった時に生成する音
         if (collision.gameObject.tag == "Player")
         {
             AudioPlayer.PlaySE(AudioKey.SE_EnemyAttack);
@@ -181,7 +189,7 @@ public class EnemyCast : MonoBehaviour
         _state = states.stop;
     }
 
-    void ResetEnemy()
+    void ResetEnemy() 
     {
         this.transform.position = _startPos.transform.position;
         _state = states.move;
