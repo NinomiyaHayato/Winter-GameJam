@@ -6,13 +6,21 @@ using UniRx.Triggers;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine.Rendering;
+using UnityEngine.Events;
 
 /// <summary>
 /// 動的に生成せず、シーン上に初めから配置されていることが前提のプレイヤークラス
 /// </summary>
 public class Player : MonoBehaviour
 {
+    /// <summary>
+    /// プレイヤーがインゲームのミス条件を満たした際に呼ばれるコールバック
+    /// </summary>
+    public event UnityAction OnMissed;
+
     [SerializeField] CharacterController _controller;
+    [Header("アイテムや敵と衝突する判定")]
+    [SerializeField] Collider _hitTrigger;
     [Header("ゲーム開始時の地点")]
     [SerializeField] Transform _respawnPoint;
     [Header(Const.PreColorTag + "移動速度" + Const.SufColorTag)]
@@ -31,8 +39,18 @@ public class Player : MonoBehaviour
     {
         Cursor.visible = false;
 
-        bool isValid = true;
+        bool isValid = false;
         this.UpdateAsObservable().Where(_ => isValid).Subscribe(_ => _isMoving.Value = Move());
+
+        // アイテムを獲得する
+        _hitTrigger.OnTriggerEnterAsObservable()
+            .Where(c => c.CompareTag(Const.ItemTag))
+            .Subscribe(c => OnGetItem(c.gameObject));
+
+        // 敵と衝突する
+        _hitTrigger.OnTriggerEnterAsObservable()
+            .Where(c => c.CompareTag(Const.EnemyTag))
+            .Subscribe(_ => OnHitEnemy());
 
         // ゲームの状態遷移に初期化処理をフック
         EntryPoint.OnTitleEnter += Initialize;
@@ -42,6 +60,8 @@ public class Player : MonoBehaviour
             EntryPoint.OnTitleEnter -= Initialize;
             EntryPoint.OnInGameReset -= Initialize;
         });
+
+        // 無効化から
     }
 
     // ゲーム開始前に初期化する
@@ -77,5 +97,17 @@ public class Player : MonoBehaviour
 
         // 移動した場合はtrueを返す
         return input != default;
+    }
+
+    // アイテムを獲得した
+    void OnGetItem(GameObject item)
+    {
+        PlantManager.StepProgress();
+    }
+
+    // 敵とぶつかった
+    void OnHitEnemy()
+    {
+        OnMissed?.Invoke();
     }
 }

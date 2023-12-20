@@ -28,7 +28,9 @@ public static class ImageExtensions
             image.color = c;
 
             progress += Time.deltaTime / duration;
-            await UniTask.Yield(token);
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
+
+        image.color = new Color(image.color.r, image.color.g, image.color.b, endAlpha);
     }
 }
