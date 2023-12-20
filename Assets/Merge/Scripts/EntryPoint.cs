@@ -98,6 +98,7 @@ public class EntryPoint : MonoBehaviour
 
             // エンディング画面でクリックまで待つ
             OnEndingEnter?.Invoke();
+            Ending();
             await WaitForInputAsync(token);
 
             // タイトル画面に遷移
@@ -109,6 +110,12 @@ public class EntryPoint : MonoBehaviour
     void ResetGameAll()
     {
         _uiController.Action(Scenes.TitleScene);
+    }
+
+    // エンディング画面に遷移した際に呼ばれる
+    void Ending()
+    {
+        _uiController.Action(Scenes.GameEndScene);
     }
 
     // 画面クリックを待つ
