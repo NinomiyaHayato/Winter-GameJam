@@ -31,6 +31,8 @@ public class Worldkeeper : MonoBehaviour
     /// </summary>
     public static event UnityAction OnRealityEnter;
 
+    [Header("夢と現実を示すUIを操作")]
+    [SerializeField] DoDirection _uiController;
     [Header(Const.PreColorTag + "夢の世界の持続時間(秒)" + Const.SufColorTag)]
     [SerializeField] float _duration = 5.0f;
     [Header("夢の世界用のポストエフェクト")]
@@ -82,6 +84,7 @@ public class Worldkeeper : MonoBehaviour
 
     void ToDream()
     {
+        _uiController.ImageChange();
         _currentState = State.Dream;
         _volume.enabled = true;
         OnDreamEnter?.Invoke();
@@ -89,6 +92,7 @@ public class Worldkeeper : MonoBehaviour
 
     void ToReality()
     {
+        _uiController.ImageChange();
         _currentState = State.Reality;
         _volume.enabled = false;
         OnRealityEnter?.Invoke();
