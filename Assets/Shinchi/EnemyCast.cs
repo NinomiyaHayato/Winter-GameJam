@@ -25,8 +25,8 @@ public class EnemyCast : MonoBehaviour
     [SerializeField]
     [Tooltip("視点方向を示すオブジェクト")] Transform _lookAtTarget;
 
-
     int _currentWayPointIndex; // 現在のWayPointの数
+
     NavMeshAgent _agent; // NavMeshAgent
 
     void Awake()
@@ -165,6 +165,14 @@ public class EnemyCast : MonoBehaviour
             _currentWayPointIndex = (_currentWayPointIndex + 1) % _wayPoints.Length;
             // 目的地を次の場所に設定
             _agent.SetDestination(_wayPoints[_currentWayPointIndex].position);
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            AudioPlayer.PlaySE(AudioKey.SE_EnemyAttack);
         }
     }
 
