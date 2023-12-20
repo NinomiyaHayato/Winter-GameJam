@@ -4,12 +4,15 @@ using UnityEngine;
 public class PlayerLockerHide : MonoBehaviour
 {
     [SerializeField] GameObject _playerVirtualCamera;
-    [SerializeField][Tooltip("ロッカーから離れた時のロッカーとの距離")]
+    [SerializeField]
+    [Tooltip("ロッカーから離れた時のロッカーとの距離")]
     float _lockerExitDistance;
     CinemachineVirtualCamera _cvc;
-
     GameObject _hitCollisionGameobject;
     int _cameraPriority;
+    float _lockerTimer = 0;
+    [SerializeField] float _inLockerMinTime = 1;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,11 +23,16 @@ public class PlayerLockerHide : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(gameObject.tag == "Hide" && Input.GetKeyDown(KeyCode.W))
+
+        if (gameObject.tag == "Hide")
         {
-            //自分の位置をロッカーの目の前に変更
-            this.gameObject.transform.position =
-                _hitCollisionGameobject.transform.position + _hitCollisionGameobject.gameObject.transform.forward * _lockerExitDistance;
+            _lockerTimer += Time.deltaTime;
+            if (_lockerTimer > _inLockerMinTime && Input.GetKey(KeyCode.W))
+            {
+                //自分の位置をロッカーの目の前に変更
+                this.gameObject.transform.position = _hitCollisionGameobject.transform.position
+                    + _hitCollisionGameobject.gameObject.transform.forward * _lockerExitDistance;
+            }
         }
     }
     private void OnCollisionEnter(Collision collision)
@@ -45,6 +53,7 @@ public class PlayerLockerHide : MonoBehaviour
     {
         if (collision.gameObject.tag == "Locker")
         {
+            _lockerTimer = 0;
             gameObject.tag = "Player";//タグをプレイヤーに戻す
             GetComponent<MeshRenderer>().enabled = true;//プレイヤーを透明から戻す
             //カメラをプレイヤーについているシネマシーンに戻す

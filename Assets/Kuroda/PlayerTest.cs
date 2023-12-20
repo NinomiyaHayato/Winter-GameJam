@@ -12,9 +12,9 @@ public class PlayerTest : MonoBehaviour
     float _playerDashSpeed = 1.5f;
     [SerializeField] GameObject _startPosition;
     [SerializeField][Tooltip("スタミナの最大値")] float _maxDashStaminaTimer = 5;
-    public float _currentStamina;//現在のスタミナ
+    float _currentStamina;//現在のスタミナ
     [SerializeField ,Range(0,1)][Tooltip("走れるボーダー(割合)")] float _dashBordar = 0.5f;
-    public bool _dashPossible = false;
+    bool _dashPossible = false;
     
 
     Rigidbody _rb;
@@ -47,7 +47,7 @@ public class PlayerTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (_state == state.move)
+        if (_state == state.move && gameObject.tag != "Hide")
         {
             //input
             PlayerInput();
@@ -56,14 +56,14 @@ public class PlayerTest : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_state == state.move)
+        if (_state == state.move && gameObject.tag != "Hide")
         {
             PlayerMove();
         }
     }
     void PlayerInput()
     {
-        if (gameObject.tag == "Player")
+        if (gameObject.tag != "Hide")
         {
             _horizontal = Input.GetAxisRaw("Horizontal");
             _vertical = Input.GetAxisRaw("Vertical");
@@ -90,7 +90,6 @@ public class PlayerTest : MonoBehaviour
             _currentStamina += Time.deltaTime * 1/2;
         }
         _rb.AddForce(Camera.main.transform.forward * _vertical * _playerMoveSpeed * dash);
-        Debug.Log(_vertical * _playerMoveSpeed * dash +  " " + _horizontal * _playerMoveSpeed);
         _rb.AddForce(Camera.main.transform.right * _horizontal * _playerMoveSpeed);
         Vector3 direction = Camera.main.transform.forward;
         direction.y = 0;
@@ -124,6 +123,10 @@ public class PlayerTest : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
+        if(collision.gameObject.tag == "Locker")
+        {
+            _rb.velocity = Vector3.zero;
+        }
         if (collision.gameObject.tag == "Enemy" && this.gameObject.tag == "Player")
         {
             Debug.Log("GAMEOVER");
