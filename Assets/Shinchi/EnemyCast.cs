@@ -22,9 +22,9 @@ public class EnemyCast : MonoBehaviour
     [Tooltip("Playerの位置")] Transform _targetTransformPos;
     [SerializeField]
     [Tooltip("WayPointsの数と位置")] Transform[] _wayPoints;
+    [SerializeField]
+    [Tooltip("視点方向を示すオブジェクト")] Transform _lookAtTarget;
 
-    [Tooltip("視点方向を示すオブジェクト")]
-    [SerializeField] Transform _lookAtTarget;
 
     int _currentWayPointIndex; // 現在のWayPointの数
     NavMeshAgent _agent; // NavMeshAgent
@@ -33,11 +33,13 @@ public class EnemyCast : MonoBehaviour
     void Awake()
     {
         EntryPoint.OnInGameStart += ResetEnemy;
+        EntryPoint.OnInGameReset += ResetEnemy;
     }
 
     void OnDestroy()
     {
         EntryPoint.OnInGameStart -= ResetEnemy;
+        EntryPoint.OnInGameReset -= ResetEnemy;
     }
 
     void Start()
@@ -67,16 +69,27 @@ public class EnemyCast : MonoBehaviour
 
     void Raycast()
     {
+        //Vector3 forwardTarget = this._targetTransformPos.transform.position - this.transform.position;
+        //Debug.DrawRay(transform.position, forwardTarget, Color.red, 3);
+        //RaycastHit hit;
+        //if (Physics.Raycast(this.transform.position, forwardTarget, out hit, _maxDistance))
+        //{
+        //    Debug.Log(hit.collider.name);
+        //    Debug.LogWarning(hit.point.magnitude);
+        //}
+
         bool _hitPlayer = false;
         // RayCastをEnemy中心に円形に展開
         Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, _maxDistance);
         // 当たったobjの中でPlayerを探す。見つけたら追いかける。それ以外は徘徊。
         for (int i = 0; i < hitColliders.Length; i++)
         {
-            //Debug.Log(hitColliders[i].gameObject.name);
-            if (hitColliders[i].gameObject.tag == "Player")
+            if (name != _targetTransformPos.name)
             {
-                _hitPlayer = true;
+                if (hitColliders[i].gameObject.tag == "Player")
+                {
+                    _hitPlayer = true;
+                }
             }
         }
         if (_hitPlayer && FOV())
