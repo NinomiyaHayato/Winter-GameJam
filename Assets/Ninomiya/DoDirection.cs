@@ -34,7 +34,6 @@ public class DoDirection : MonoBehaviour
     private void Start()
     {
         StartImageMove();
-        _count = 0;
     }
     public void StartImageMove()
     {
@@ -89,6 +88,11 @@ public class DoDirection : MonoBehaviour
                 _images[1].DOFade(1f, _changeTime2).SetLink(gameObject);
             });
         }
+    }
+
+    public void  CountReset()
+    {
+        _count = 0;
     }
 }
 public enum Scenes
