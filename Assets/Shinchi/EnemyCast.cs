@@ -102,16 +102,14 @@ public class EnemyCast : MonoBehaviour
 
     void Raycast()
     {
-        //Vector3 forwardTarget = this._targetTransformPos.transform.position - this.transform.position;
-        //Debug.DrawRay(transform.position, forwardTarget, Color.red, 3);
-        //RaycastHit hit;
-        //if (Physics.Raycast(this.transform.position, forwardTarget, out hit, _maxDistance))
-        //{
-        //    Debug.Log(hit.collider.name);
-        //    Debug.LogWarning(hit.point.magnitude);
-        //}
-
         bool _hitPlayer = false;
+        RaycastHit hit;
+        // Player‚Ö‚Ì•ûŒü
+        Vector3 forwardTarget = this._targetTransformPos.transform.position - this.transform.position;
+        // DrawRay‚Í‚¢‚ç‚È‚©‚Á‚½‚çÁ‚µ‚Ä‚­‚¾‚³‚¢
+        Debug.DrawRay(transform.position, forwardTarget.normalized * _maxDistance, Color.red, 0.1f);
+        // hit‚Ì”»’èæ“¾
+        Physics.Raycast(this.transform.position, forwardTarget, out hit, _maxDistance);
         // RayCast‚ğEnemy’†S‚É‰~Œ`‚É“WŠJ
         Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, _maxDistance);
         // “–‚½‚Á‚½obj‚Ì’†‚ÅPlayer‚ğ’T‚·BŒ©‚Â‚¯‚½‚ç’Ç‚¢‚©‚¯‚éB‚»‚êˆÈŠO‚ÍœpœjB
@@ -119,7 +117,7 @@ public class EnemyCast : MonoBehaviour
         {
             if (name != _targetTransformPos.name)
             {
-                if (hitColliders[i].gameObject.tag == "Player")
+                if (hitColliders[i].gameObject.tag == "Player" && hit.collider.gameObject.tag == "Player")
                 {
                     _hitPlayer = true;
                 }
