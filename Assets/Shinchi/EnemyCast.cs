@@ -25,21 +25,56 @@ public class EnemyCast : MonoBehaviour
     [SerializeField]
     [Tooltip("視点方向を示すオブジェクト")] Transform _lookAtTarget;
 
-
     int _currentWayPointIndex; // 現在のWayPointの数
+
     NavMeshAgent _agent; // NavMeshAgent
-    bool _isVisible = true;
 
     void Awake()
     {
         EntryPoint.OnInGameStart += ResetEnemy;
         EntryPoint.OnInGameReset += ResetEnemy;
+
+        Worldkeeper.OnDreamEnter += Dreaming;
+        Worldkeeper.OnRealityEnter += Realty;
     }
 
     void OnDestroy()
     {
         EntryPoint.OnInGameStart -= ResetEnemy;
         EntryPoint.OnInGameReset -= ResetEnemy;
+
+        Worldkeeper.OnDreamEnter -= Dreaming;
+        Worldkeeper.OnRealityEnter -= Realty;
+    }
+
+    void Dreaming()
+    {
+        // 夢の中に入ったら
+        var m = GetComponent<MeshRenderer>();
+        var col = GetComponent<Collider>();
+        var rb = GetComponent<Rigidbody>();
+
+
+        rb.isKinematic = true;
+        m.enabled = false;
+        col.enabled = false;
+
+        _agent.speed = 0;
+    }
+
+    void Realty()
+    {
+        // 夢から目覚めたら
+        var m = GetComponent<MeshRenderer>();
+        var col = GetComponent<Collider>();
+        var rb = GetComponent<Rigidbody>();
+
+
+        rb.isKinematic = false;
+        m.enabled = true;
+        col.enabled = true;
+
+        _agent.speed = _speed;
     }
 
     void Start()
@@ -54,13 +89,13 @@ public class EnemyCast : MonoBehaviour
 
     void Update()
     {
-        // インゲーム外
+        // インゲーム
         if (_state == states.move)
         {
             //Debug.Log("1");
             Raycast();
         }
-        // インゲーム
+        // インゲーム外
         else
         {
             // Debug.Log("2");
@@ -69,16 +104,14 @@ public class EnemyCast : MonoBehaviour
 
     void Raycast()
     {
-        //Vector3 forwardTarget = this._targetTransformPos.transform.position - this.transform.position;
-        //Debug.DrawRay(transform.position, forwardTarget, Color.red, 3);
-        //RaycastHit hit;
-        //if (Physics.Raycast(this.transform.position, forwardTarget, out hit, _maxDistance))
-        //{
-        //    Debug.Log(hit.collider.name);
-        //    Debug.LogWarning(hit.point.magnitude);
-        //}
-
         bool _hitPlayer = false;
+        RaycastHit hit;
+        // Playerへの方向
+        Vector3 forwardTarget = this._targetTransformPos.transform.position - this.transform.position;
+        // DrawRayはいらなかったら消してください
+        Debug.DrawRay(transform.position, forwardTarget.normalized * _maxDistance, Color.red, 0.1f);
+        // hitの判定取得
+        Physics.Raycast(this.transform.position, forwardTarget, out hit, _maxDistance);
         // RayCastをEnemy中心に円形に展開
         Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, _maxDistance);
         // 当たったobjの中でPlayerを探す。見つけたら追いかける。それ以外は徘徊。
@@ -86,7 +119,7 @@ public class EnemyCast : MonoBehaviour
         {
             if (name != _targetTransformPos.name)
             {
-                if (hitColliders[i].gameObject.tag == "Player")
+                if (hitColliders[i].gameObject.tag == "Player" && hit.collider.gameObject.tag == "Player")
                 {
                     _hitPlayer = true;
                 }
@@ -94,16 +127,19 @@ public class EnemyCast : MonoBehaviour
         }
         if (_hitPlayer && FOV())
         {
+            // Raycastの中にPlayerを認識かつFOVの中にPlayerがいる場合Playerを追いかける
             NavMove();
         }
         else
         {
+            // 上の条件に当てはまらなかったら徘徊(パトロール)
             Patrol();
         }
     }
 
     bool FOV()
     {
+        // EnemyがPlayerを認識する視野角と距離
         Vector3 look = _lookAtTarget.position - this.transform.position;
         Vector3 target = this._targetTransformPos.position - this.transform.position;
         float cosHalfSight = Mathf.Cos(_fov / 2 * Mathf.Deg2Rad);
@@ -113,6 +149,8 @@ public class EnemyCast : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        // Gizmosの色(アルファ値)の変更
+        // Gizmosの球の大きさ表示
         Gizmos.color = new Color(1f, 1f, 0f, 0.5f);
         Gizmos.DrawSphere(transform.position, _maxDistance);
     }
@@ -137,12 +175,21 @@ public class EnemyCast : MonoBehaviour
         }
     }
 
+    void OnCollisionEnter(Collision collision)
+    {
+        // Playerに当たった時に生成する音
+        if (collision.gameObject.tag == "Player")
+        {
+            AudioPlayer.PlaySE(AudioKey.SE_EnemyAttack);
+        }
+    }
+
     void TitleEnemy()
     {
         _state = states.stop;
     }
 
-    void ResetEnemy()
+    void ResetEnemy() 
     {
         this.transform.position = _startPos.transform.position;
         _state = states.move;

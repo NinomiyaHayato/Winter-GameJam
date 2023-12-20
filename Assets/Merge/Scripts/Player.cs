@@ -55,13 +55,18 @@ public class Player : MonoBehaviour
         // ゲームの状態遷移に初期化処理をフック
         EntryPoint.OnTitleEnter += Initialize;
         EntryPoint.OnInGameReset += Initialize;
+        EntryPoint.OnInGameStart += Valid;
+        EntryPoint.OnInGameReset += Invalid;
         this.OnDestroyAsObservable().Subscribe(_ => 
         {
             EntryPoint.OnTitleEnter -= Initialize;
             EntryPoint.OnInGameReset -= Initialize;
+            EntryPoint.OnInGameStart -= Valid;
+            EntryPoint.OnInGameReset -= Invalid;
         });
 
-        // 無効化から
+        void Valid() => isValid = true;
+        void Invalid() => isValid = false;
     }
 
     // ゲーム開始前に初期化する
