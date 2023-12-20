@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -5,32 +6,48 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Rigidbody))]
 public class EnemyCast : MonoBehaviour
 {
-    states _state = states.stop; // ステート
+    [SerializeField]
+    [Tooltip("Stateの種類")] states _state = states.move;
+    [SerializeField]
+    [Tooltip("移動速度")] float _speed;
+    [SerializeField]
+    [Tooltip("Player認識範囲")] float _maxDistance;
+    [SerializeField]
+    [Tooltip("StoppingDistance範囲")] float _StoppingDistance;
+    [SerializeField]
+    [Tooltip("視野角"), Range(0, 180)] float _fov;
+    [SerializeField]
+    [Tooltip("スタートポジション")] Transform _startPos;
+    [SerializeField]
+    [Tooltip("Playerの位置")] Transform _targetTransformPos;
+    [SerializeField]
+    [Tooltip("WayPointsの数と位置")] Transform[] _wayPoints;
+    [SerializeField]
+    [Tooltip("視点方向を示すオブジェクト")] Transform _lookAtTarget;
 
-    [SerializeField] float _speed;
-    [SerializeField] float _maxDistance;
-    [SerializeField] Transform _startPos;
-    [SerializeField] Transform _targetTransformPos;
-    [SerializeField] LayerMask _layerMask;
-    [SerializeField] Transform[] _wayPoints;
 
-    int _currentWayPointIndex;
-    NavMeshAgent _agent;
+    int _currentWayPointIndex; // 現在のWayPointの数
+    NavMeshAgent _agent; // NavMeshAgent
+    bool _isVisible = true;
 
     void Awake()
     {
         EntryPoint.OnInGameStart += ResetEnemy;
+        EntryPoint.OnInGameReset += ResetEnemy;
     }
 
     void OnDestroy()
     {
         EntryPoint.OnInGameStart -= ResetEnemy;
+        EntryPoint.OnInGameReset -= ResetEnemy;
     }
 
     void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
-        _agent.SetDestination(_wayPoints[0].position);
+        _agent.speed = _speed; // NavMeshAgentのスピードを変数に
+        _agent.stoppingDistance = _StoppingDistance; // NavMeshAgentのStoppingDistanceを変数に
+        _agent.SetDestination(_wayPoints[0].position); // 最初に向かうWayPoint
         TitleEnemy();
     }
 
@@ -38,55 +55,85 @@ public class EnemyCast : MonoBehaviour
     void Update()
     {
         // インゲーム外
-        if (_state == states.stop)
+        if (_state == states.move)
         {
-
+            //Debug.Log("1");
+            Raycast();
         }
         // インゲーム
         else
         {
-            Raycast();
+            // Debug.Log("2");
         }
+    }
+
+    void Raycast()
+    {
+        //Vector3 forwardTarget = this._targetTransformPos.transform.position - this.transform.position;
+        //Debug.DrawRay(transform.position, forwardTarget, Color.red, 3);
+        //RaycastHit hit;
+        //if (Physics.Raycast(this.transform.position, forwardTarget, out hit, _maxDistance))
+        //{
+        //    Debug.Log(hit.collider.name);
+        //    Debug.LogWarning(hit.point.magnitude);
+        //}
+
+        bool _hitPlayer = false;
+        // RayCastをEnemy中心に円形に展開
+        Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, _maxDistance);
+        // 当たったobjの中でPlayerを探す。見つけたら追いかける。それ以外は徘徊。
+        for (int i = 0; i < hitColliders.Length; i++)
+        {
+            if (name != _targetTransformPos.name)
+            {
+                if (hitColliders[i].gameObject.tag == "Player")
+                {
+                    _hitPlayer = true;
+                }
+            }
+        }
+        if (_hitPlayer && FOV())
+        {
+            NavMove();
+        }
+        else
+        {
+            Patrol();
+        }
+    }
+
+    bool FOV()
+    {
+        Vector3 look = _lookAtTarget.position - this.transform.position;
+        Vector3 target = this._targetTransformPos.position - this.transform.position;
+        float cosHalfSight = Mathf.Cos(_fov / 2 * Mathf.Deg2Rad);
+        float cosTarget = Vector3.Dot(look, target) / (look.magnitude * target.magnitude);
+        return cosTarget > cosHalfSight && target.magnitude < _fov;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(1f, 1f, 0f, 0.5f);
+        Gizmos.DrawSphere(transform.position, _maxDistance);
     }
 
     void NavMove()
     {
-       //if(Vector3.Distance()
+        //　Playerを追いかける仕組み
+        _agent.destination = _targetTransformPos.transform.position;
     }
 
     void Patrol()
     {
+        // 徘徊
         // インスペクターから巡回する目的地の数を調整できる
         if (_agent.remainingDistance <= _agent.stoppingDistance)
         {
+            //Debug.Log(_currentWayPointIndex);
             // 目的地の番号を１に更新
             _currentWayPointIndex = (_currentWayPointIndex + 1) % _wayPoints.Length;
             // 目的地を次の場所に設定
             _agent.SetDestination(_wayPoints[_currentWayPointIndex].position);
-        }
-    }
-
-
-    void Raycast()
-    {
-        bool _hitPlayer = false;
-
-        Collider[] hitColliders = Physics.OverlapSphere(this.transform.position, _maxDistance);
-        for (int i = 0; i < hitColliders.Length; i++)
-        {
-            Debug.Log(hitColliders[i].gameObject.name);
-            if (hitColliders[i].gameObject.tag == "Player")
-            {
-                _hitPlayer = true;
-            }
-        }
-        if (!_hitPlayer)
-        {
-            Patrol();
-        }
-        else
-        {
-            NavMove();
         }
     }
 

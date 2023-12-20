@@ -6,7 +6,7 @@ using UniRx.Triggers;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
 using System.Threading;
-using UnityEngine.UI;
+using UnityEngine.Events;
 using System.Linq;
 
 public class PlantManager : MonoBehaviour
@@ -47,9 +47,9 @@ public class PlantManager : MonoBehaviour
     #region 進捗度のクラス。一定範囲の値をとるfloat型
     class Progress
     {
-        public readonly float Max = 100.0f;
+        public const float Max = 100.0f;
 
-        float _value;
+        float _value = new();
         public float Value
         {
             get => _value;
@@ -76,6 +76,11 @@ public class PlantManager : MonoBehaviour
 
     public struct Message { }
 
+    /// <summary>
+    /// 進捗度が最大になったタイミングで呼ばれるコールバック
+    /// </summary>
+    public event UnityAction OnProgressComplete;
+
     [Header("UIを操作する")]
     [SerializeField] DoDirection _uiController;
     [Header("ヒエラルキー上に配置した植物")]
@@ -87,12 +92,17 @@ public class PlantManager : MonoBehaviour
 
     void Awake()
     {
-        // StepProgressメソッドが呼ばれるたびに進捗が増加する
         Progress progress = new();
-        MessageBroker.Default.Receive<Message>()
-            .Subscribe(_ => progress.Value += _progressPower).AddTo(this);
+        PlantObject[] plants = _plants.Select(t => new PlantObject(t)).ToArray();
 
-        PlantObject[] plants = _plants.Select(t => new PlantObject(t)).ToArray();     
+        // StepProgressメソッドが呼ばれるたびに進捗が増加する
+        MessageBroker.Default.Receive<Message>().Subscribe(_ => 
+        {
+            // 進捗度が最大になった場合にコールバック
+            if (progress.Value + _progressPower >= Progress.Max) OnProgressComplete?.Invoke();
+            
+            progress.Value += _progressPower;
+        }).AddTo(this);    
 
         // インゲーム開始とリセットのタイミングでオブジェクトを全部画面から隠す
         EntryPoint.OnPreInGameStart += HideAll;
@@ -149,7 +159,7 @@ public class PlantManager : MonoBehaviour
     // UIに0から100%で表示
     void Print(float percent)
     {
-        _uiController.ErosionTextChange((int)(percent * 100));
+        _uiController.ErosionTextChange(Mathf.CeilToInt(percent * 100));
     }
 
     /// <summary>

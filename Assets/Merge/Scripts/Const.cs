@@ -10,5 +10,7 @@ public static class Const
 
     public const string PlayerTag = "Player";
     public const string ItemTag = "Item";
+    public const string EnemyTag = "Enemy";
+    public const string BedTag = "Bed";
     public static readonly int PlayerLayer = 1 << LayerMask.NameToLayer("Player");
 }
