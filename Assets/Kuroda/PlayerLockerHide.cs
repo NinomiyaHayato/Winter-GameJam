@@ -7,8 +7,6 @@ public class PlayerLockerHide : MonoBehaviour
     [SerializeField][Tooltip("ロッカーから離れた時のロッカーとの距離")]
     float _lockerExitDistance;
     CinemachineVirtualCamera _cvc;
-    [SerializeField][Tooltip("最低でもロッカーにいる時間")] float _lockerTimerMin = 0.5f;
-    float _lockerTimer = 0;
 
     GameObject _hitCollisionGameobject;
     int _cameraPriority;
