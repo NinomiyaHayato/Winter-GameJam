@@ -28,18 +28,51 @@ public class EnemyCast : MonoBehaviour
 
     int _currentWayPointIndex; // 現在のWayPointの数
     NavMeshAgent _agent; // NavMeshAgent
-    bool _isVisible = true;
 
     void Awake()
     {
         EntryPoint.OnInGameStart += ResetEnemy;
         EntryPoint.OnInGameReset += ResetEnemy;
+
+        Worldkeeper.OnDreamEnter += Dreaming;
+        Worldkeeper.OnRealityEnter += Realty;
     }
 
     void OnDestroy()
     {
         EntryPoint.OnInGameStart -= ResetEnemy;
         EntryPoint.OnInGameReset -= ResetEnemy;
+
+        Worldkeeper.OnDreamEnter -= Dreaming;
+        Worldkeeper.OnRealityEnter -= Realty;
+    }
+
+    void Dreaming()
+    {
+        var m = GetComponent<MeshRenderer>();
+        var col = GetComponent<Collider>();
+        var rb = GetComponent<Rigidbody>();
+
+
+        rb.isKinematic = true;
+        m.enabled = false;
+        col.enabled = false;
+
+        _agent.speed = 0;
+    }
+
+    void Realty()
+    {
+        var m = GetComponent<MeshRenderer>();
+        var col = GetComponent<Collider>();
+        var rb = GetComponent<Rigidbody>();
+
+
+        rb.isKinematic = false;
+        m.enabled = true;
+        col.enabled = true;
+
+        _agent.speed = _speed;
     }
 
     void Start()
@@ -54,13 +87,13 @@ public class EnemyCast : MonoBehaviour
 
     void Update()
     {
-        // インゲーム外
+        // インゲーム
         if (_state == states.move)
         {
             //Debug.Log("1");
             Raycast();
         }
-        // インゲーム
+        // インゲーム外
         else
         {
             // Debug.Log("2");
