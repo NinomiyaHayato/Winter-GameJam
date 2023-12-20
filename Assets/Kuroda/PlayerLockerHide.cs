@@ -7,7 +7,10 @@ public class PlayerLockerHide : MonoBehaviour
     [SerializeField][Tooltip("ロッカーから離れた時のロッカーとの距離")]
     float _lockerExitDistance;
     CinemachineVirtualCamera _cvc;
-    
+    [SerializeField][Tooltip("最低でもロッカーにいる時間")] float _lockerTimerMin = 0.5f;
+    float _lockerTimer = 0;
+
+    GameObject _hitCollisionGameobject;
     int _cameraPriority;
     // Start is called before the first frame update
     void Start()
@@ -19,7 +22,12 @@ public class PlayerLockerHide : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(gameObject.tag == "Hide" && Input.GetKeyDown(KeyCode.W))
+        {
+            //自分の位置をロッカーの目の前に変更
+            this.gameObject.transform.position =
+                _hitCollisionGameobject.transform.position + _hitCollisionGameobject.gameObject.transform.forward * _lockerExitDistance;
+        }
     }
     private void OnCollisionEnter(Collision collision)
     {
@@ -32,6 +40,7 @@ public class PlayerLockerHide : MonoBehaviour
                 gameObject.GetComponent<CinemachineVirtualCamera>().Priority = _cameraPriority + 1;
             //プレイヤーの向きをロッカーの正面に変更
             gameObject.transform.rotation = Camera.main.transform.rotation;
+            _hitCollisionGameobject = collision.gameObject;
         }
     }
     private void OnCollisionExit(Collision collision)
@@ -46,9 +55,6 @@ public class PlayerLockerHide : MonoBehaviour
             //プレイヤーについているシネマシーンの向きをロッカーの正面に変更
             _cvc.GetCinemachineComponent<CinemachinePOV>().
                 m_HorizontalAxis.Value = Camera.main.transform.localEulerAngles.y;
-            //自分の位置をロッカーの目の前に変更
-            this.gameObject.transform.position =
-                collision.transform.position + collision.gameObject.transform.forward*_lockerExitDistance;
         }
     }
 }
