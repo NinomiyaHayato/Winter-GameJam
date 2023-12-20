@@ -7,8 +7,6 @@ using UnityEngine.EventSystems;
 
 public class DoDirection : MonoBehaviour
 {
-    [SerializeField, Header("StartText")] private Image _startImage;
-
     [SerializeField, Header("TitlePanelŠi”[")] private GameObject[] _gamePanels;
 
     [SerializeField, Header("ƒXƒ^[ƒgImage‚ÌˆÚ“®‹——£")] private float _moveDirection = 10;
@@ -18,8 +16,6 @@ public class DoDirection : MonoBehaviour
     [SerializeField, Header("–²‚ÆŒ»À‚ÌƒƒS“ü‚ê‘Ö‚¦‚éŠÔ(Á‚·)")] private float _changeTime;
 
     [SerializeField, Header("–²‚ÆŒ»À‚ÌƒƒS“ü‚ê‘Ö‚¦‚éŠÔ(•\¦)")] private float _changeTime2;
-
-    [SerializeField, Header("ZH—¦‚ÌText")] private Text _erosionText;
 
     [SerializeField, Header("ReallyImage‚ÆDreamImage")] private Image[] _images;
 
@@ -31,15 +27,6 @@ public class DoDirection : MonoBehaviour
 
     private int _count = 0;
 
-    private void Start()
-    {
-        StartImageMove();
-    }
-    public void StartImageMove()
-    {
-        _startImage.transform.DOLocalMoveY(_moveDirection, _loopTime).SetLoops(-1, LoopType.Yoyo).SetLink(gameObject);
-    }
-
     public void Action(Scenes scenes)
     {
         foreach(var panels in _gamePanels) { panels.SetActive(false); }
@@ -48,7 +35,6 @@ public class DoDirection : MonoBehaviour
 
     public void ErosionTextChange(int erosionCount)
     {
-        _erosionText.text = $"ZH—¦ : {erosionCount} %";
         if(erosionCount == 0)
         {
             foreach(var backGrounds in _backGrounds) { backGrounds.enabled = false; }
