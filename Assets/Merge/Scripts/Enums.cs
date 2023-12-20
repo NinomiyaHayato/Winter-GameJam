@@ -29,4 +29,5 @@ public enum AudioKey
     BGM_Reality,
     BGM_Dream,
     BGM_Ending,
+    SE_Futon,
 }

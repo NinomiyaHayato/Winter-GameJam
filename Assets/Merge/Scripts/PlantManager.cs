@@ -122,7 +122,11 @@ public class PlantManager : MonoBehaviour
         void HideAll()
         {
             // UIÇèâä˙âª
-            if (_uiController != null) _uiController.ErosionTextChange(0);
+            if (_uiController != null)
+            {
+                _uiController.CountReset();
+                _uiController.ErosionTextChange(0);
+            }
 
             progress.Value = 0;
             foreach (PlantObject p in plants) p.Hide();
