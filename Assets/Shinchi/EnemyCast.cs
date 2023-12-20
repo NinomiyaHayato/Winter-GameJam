@@ -7,7 +7,7 @@ using UnityEngine.AI;
 public class EnemyCast : MonoBehaviour
 {
     [SerializeField]
-    [Tooltip("Stateの種類")] states _state = states.stop;
+    [Tooltip("Stateの種類")] states _state = states.move;
     [SerializeField]
     [Tooltip("移動速度")] float _speed;
     [SerializeField]
@@ -53,15 +53,15 @@ public class EnemyCast : MonoBehaviour
     void Update()
     {
         // インゲーム外
-        if (_state == states.stop)
+        if (_state == states.move)
         {
             //Debug.Log("1");
+            Raycast();
         }
         // インゲーム
         else
         {
             // Debug.Log("2");
-            Raycast();
         }
     }
 
@@ -100,7 +100,7 @@ public class EnemyCast : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color =  Color.yellow;
+        Gizmos.color = new Color(1f, 1f, 0f, 0.5f);
         Gizmos.DrawSphere(transform.position, _maxDistance);
     }
 
